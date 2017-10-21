@@ -54,7 +54,7 @@ for x in months:
 	d = x.get('days')
 	t_days = []
 	for num in range(1, d + 1): # 1 and last value inclusive
-		temp = random.randint(temp_ranges_min, temp_ranges_max)
+		temp = random.randrange(temp_ranges_min, temp_ranges_max)
 		t_days.append(temp)
 	sd = st.stdev(t_days) # just use stdev, because its there
 	t_overall.append({"month": m, "temps": t_days, "s_dev": sd})
