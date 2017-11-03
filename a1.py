@@ -1,7 +1,10 @@
 #! /usr/bin/env python3
 
 import urllib.request
+from operator import itemgetter
+from collections import OrderedDict
 import re
+import matplotlib.pyplot as plotlib
 
 url = 'https://' + input("please enter a https url (without https://). E.g www.twitter.com\n")
 
@@ -21,31 +24,34 @@ def scan(url, depth=0, depth_max=10):
         print("site content length is {0}".format(len(html)))
         marked = 0
         # words
-        words = re.compile(r'<[^>]+>').sub('', html)
-        stripped_words = re.findall(r'\w+', words)
+        words = re.compile(r'<[^>]+>').sub('', html) # ignore html tags
+        stripped_words = re.findall(r'\w+', words) # fetch words only
         for w in stripped_words:
           if w in words_to_ignore:
+            # ignore set words
             continue
           else:
             if w in words_scanned:
-              scanned_appearances[w] = c = marked = marked + 1
+              scanned_appearances[w] = c = marked = marked + 1 # how namy times the word appears
               statistics[url] = scanned_appearances
             else:
               words_scanned.append(w)
         links = re.findall('"((http|ftp)s?://.*?)"', html)
         for link in links:
-            items.add(link[0])
+            items.add(link[0]) # add the link to the list
         print("successfully printed {0} links from {1}".format(len(links), url))
         for x in items:
           if depth == depth_max:
             print("depth reached.")
             # print(scanned)
             # print(words_scanned)
-            print(statistics)
+            plotlib.scatter(range(1, len(statistics)), statistics.items())
+            plotlib.show()
+
             exit(0)
           else:
             if x in scanned:
-              print("ignoring {0}".format(x))
+              print("ignoring link {0}".format(x))
               continue
             else:
               scanned.append(x)
