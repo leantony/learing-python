@@ -17,13 +17,13 @@ print("scanning {0} for links. This might take a while....".format(url))
 
 scanned = []
 url_regexp = '"((http|ftp)s?://.*?)"'
-p_tags_regexp = '<p>(.*?)<\/p>'
+p_tags_regexp = '<p (class|id)=(.*?)>(.*?)<\/p>'
 words_to_ignore = [" ", "target=\"_blank\"", "[", "]", '\\\\n']
 words_scanned = {}
 statistics = {}
 
 # dfs scanner to scan links in html <p> elements
-def scan(url, items = set(), depth=0, depth_max=3):
+def scan(url, items = set(), depth=0, depth_max=10):
   try:
     with urllib.request.urlopen(url) as response:
         html = str(response.read())
@@ -38,7 +38,7 @@ def scan(url, items = set(), depth=0, depth_max=3):
             continue
           else:
             if w in words_scanned:
-              if re.compile(r'[^\w\.@-]').match(w): # skip invalid chars
+              if re.compile(r'[<>/{}[\]~`|class=(.*?)]').match(w): # skip invalid chars
                 continue
               else:
                 apps = words_scanned[w] # how many times it intially appeared
@@ -55,7 +55,8 @@ def scan(url, items = set(), depth=0, depth_max=3):
         for x in items.copy():
           if depth == depth_max:
             print("depth reached.")
-            sorted_values = sorted(words.items(), key=operator.itemgetter(1), reverse=False)
+            sorted_values = sorted(words_scanned.items(), key=operator.itemgetter(1), reverse=False)
+            # print(sorted_values)
             draw_graph(sorted_values)
             exit(0)
           else:
@@ -69,12 +70,12 @@ def scan(url, items = set(), depth=0, depth_max=3):
       print(e.reason) # error
 
 # draw a graph
-def draw_graph(sorted_values, take=5):
-	k = [x[0] for x in sorted_values[-take:]]
-	v = [x[1] for x in sorted_values[-take:]]
+def draw_graph(sorted_values, top = 50):
+	k = [x[0] for x in sorted_values[-top:]]
+	v = [x[1] for x in sorted_values[-top:]]
 	print(k)
 	print(v)
-	plt.title('Graph of top 5 words found')
+	plt.title('Graph of top 50 words found')
 	plt.xlabel('word')
 	plt.ylabel('appearances')
 	plt.grid(True)
