@@ -38,7 +38,7 @@ def scan(url, items = set(), depth=0, depth_max=10):
             continue
           else:
             if w in words_scanned:
-              if re.compile(r'[<>/{}[\]~`|class=(.*?)]').match(w): # skip invalid chars
+              if re.compile(r'[<>/{}[\]()=~`|class=(.*?)]').match(w): # skip invalid chars
                 continue
               else:
                 apps = words_scanned[w] # how many times it intially appeared
@@ -51,7 +51,7 @@ def scan(url, items = set(), depth=0, depth_max=10):
         for link in links:
             # the link is a tuple, so we access the first item, which is the link
             items.add(link[0])
-        print("successfully printed {0} links from {1}".format(len(links), url))
+        print("{0} links found at {1}".format(len(links), url))
         for x in items.copy():
           if depth == depth_max:
             print("depth reached.")
@@ -65,6 +65,7 @@ def scan(url, items = set(), depth=0, depth_max=10):
               continue
             else:
               scanned.append(x)
+              print("scanning {0}".format(x))
               scan(x, items, depth=depth+1)
   except urllib.error.URLError as e:
       print(e.reason) # error
