@@ -18,7 +18,6 @@ print("scanning {0} for links. This might take a while....".format(url))
 scanned = []
 url_regexp = '"((http|ftp)s?://.*?)"'
 p_tags_regexp = '<(b|p|li|div|span) (class|id)=(.*?)>(.*?)<\/(b|p|li|div|span)>' # scan a subset of html tags
-words_to_ignore = [" ", "target=\"_blank\"", "[", "]", '\\\\n']
 words_scanned = {}
 statistics = {}
 
@@ -33,7 +32,7 @@ def scan(url, items = set(), depth=0, depth_max=10):
         words = pattern.findall(html)
         
         for w in str(words).split(' '):
-          if w in words_to_ignore or len(w) < 2:
+          if len(w) <= 2:
             # ignore set words
             continue
           else:

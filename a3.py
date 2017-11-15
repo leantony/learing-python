@@ -50,11 +50,13 @@ def draw_line_graph(x_values, y_values):
   plt.show()
 
 
-words = scan_file()
-sorted_values = sorted(words.items(), key=operator.itemgetter(1), reverse=False)
-k = [x[0] for x in sorted_values[-20:]]
-v = [x[1] for x in sorted_values[-20:]]
+def do_work():
+  words = scan_file()
+  sorted_values = sorted(words.items(), key=operator.itemgetter(1), reverse=False)
+  k = [x[0] for x in sorted_values[-20:]]
+  v = [x[1] for x in sorted_values[-20:]]
+  print(k)
+  print(v)
+  draw_line_graph(k, v)
 
-print(k)
-print(v)
-draw_line_graph(k, v)
+do_work()
