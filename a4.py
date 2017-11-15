@@ -11,13 +11,13 @@ if url is "": # use a default url
   url = 'https://' + 'www.twitter.com'
 else:
   url = 'https://' + url
-
+time_start = time.time()
 print("===============================================================")
 print("scanning {0} for links. This might take a while....".format(url))
 
 scanned = []
 url_regexp = '"((http|ftp)s?://.*?)"'
-p_tags_regexp = '<p (class|id)=(.*?)>(.*?)<\/p>'
+p_tags_regexp = '<(b|p|li|div|span) (class|id)=(.*?)>(.*?)<\/(b|p|li|div|span)>' # scan a subset of html tags
 words_to_ignore = [" ", "target=\"_blank\"", "[", "]", '\\\\n']
 words_scanned = {}
 statistics = {}
@@ -38,14 +38,18 @@ def scan(url, items = set(), depth=0, depth_max=10):
             continue
           else:
             if w in words_scanned:
-              if re.compile(r'[<>/{}[\]()=~`|class=(.*?)]').match(w): # skip invalid chars
+              if re.compile(r'[\'\"<>/{}&@[\]()=~(-)`|{class|type|role|height|width|href|viewbox|data*|id=(.*?)}]').match(w): # skip invalid chars
+                print("skipping {0} since its invalid...".format(w))
                 continue
               else:
                 apps = words_scanned[w] # how many times it intially appeared
-                words_scanned[w] = apps + 1
+                tn = apps + 1
+                words_scanned[w] = tn
                 statistics[url] = words_scanned
+                print("adding occurrence {0} of {1}...".format(tn, w))
             else:
               words_scanned[w] = 1 # intial appearances
+              print("adding first occurence of {0}".format(w))
       
         links = re.findall(url_regexp, str(words)) # find the links in the paragraphs identified above
         for link in links:
@@ -54,7 +58,10 @@ def scan(url, items = set(), depth=0, depth_max=10):
         print("{0} links found at {1}".format(len(links), url))
         for x in items.copy():
           if depth == depth_max:
+            time_end = time.time()
             print("depth reached.")
+            print("==========================================================")
+            print('task finished in {}s'.format(int(time_end - time_start)))
             sorted_values = sorted(words_scanned.items(), key=operator.itemgetter(1), reverse=False)
             # print(sorted_values)
             draw_graph(sorted_values)
@@ -71,12 +78,12 @@ def scan(url, items = set(), depth=0, depth_max=10):
       print(e.reason) # error
 
 # draw a graph
-def draw_graph(sorted_values, top = 50):
+def draw_graph(sorted_values, top = 10):
 	k = [x[0] for x in sorted_values[-top:]]
 	v = [x[1] for x in sorted_values[-top:]]
 	print(k)
 	print(v)
-	plt.title('Graph of top 50 words found')
+	plt.title('Graph of top {0} words found'.format(top))
 	plt.xlabel('word')
 	plt.ylabel('appearances')
 	plt.grid(True)
@@ -86,11 +93,7 @@ def draw_graph(sorted_values, top = 50):
 
 # call the dfs scanner
 def perform_work():
-  time_start = time.time()
-  scan(url);
-  time_end = time.time()
-  print("==========================================================")
-  print('task finished in {} ms'.format(int(time_end - time_start * 1000)))
+  scan(url)
 
 # start everything
 perform_work()

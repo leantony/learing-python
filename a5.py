@@ -1,32 +1,37 @@
 #! /usr/bin/env python3
 import csv
+from collections import defaultdict
 
-# headers
-columns = [
-	"Id", "MSSubClass", "MSZoning","LotFrontage",
-	"LotArea","Street","Alley",
-	"LotShape","LandContour","Utilities", "LotConfig", 
-	"LandSlope","Neighborhood","Condition1","Condition2",
-	"BldgType","HouseStyle","OverallQual", "OverallCond",	
-	"YearBuilt","YearRemodAdd", "RoofStyle","RoofMatl"	
-	"Exterior1st","Exterior2nd","MasVnrType", "MasVnrArea","ExterQual",	
-	"ExterCond","Foundation", "BsmtQual", "BsmtCond", "BsmtExposure"
-	"BsmtFinType1", "BsmtFinSF1", "BsmtFinType2", "BsmtFinSF2", "BsmtUnfSF"
-	"TotalBsmtSF", "Heating", "HeatingQC", "CentralAir", "Electrical", "1stFlrSF",	
-	"2ndFlrSF", "LowQualFinSF", "GrLivArea", "BsmtFullBath", "BsmtHalfBath",
-	"FullBath", "HalfBath", "BedroomAbvGr", "KitchenAbvGr", "KitchenQual", "TotRmsAbvGrd",
-	"Functional", "Fireplaces", "FireplaceQu", "GarageType", "GarageYrBlt", "GarageFinish",
-	"GarageCars", "GarageArea", "GarageQual", "GarageCond", "PavedDrive", "WoodDeckSF",
-	"OpenPorchSF", "EnclosedPorch", "3SsnPorch", "ScreenPorch", "PoolArea", "PoolQC", "Fence",	
-	"MiscFeature","MiscVal", "MoSold", "YrSold", "SaleType", "SaleCondition", "SalePrice"
-]
+def extract_data(csv_file="train.csv"):
+	columns = defaultdict(list)
+	with open('train.csv', 'r') as f:
+	    reader = csv.DictReader(f)
+	    for row in reader:
+	        for (k,v) in row.items():
+	            columns[k].append(v)
+	return columns
 
-dict1 = {}
 
-with open("train.csv", "r") as infile:
-    reader = csv.reader(infile)
-    headers = next(reader)[0:]
-    # print(headers)
-    for row in reader:
-        # dict1[row[0]] = {key: int(value) for key, value in zip(headers, row[-1:])}
-        print(row)
+def process_data(data):
+	lot_area = data['LotArea']
+	sale_price = data['SalePrice']
+	return (sale_price, lot_area)
+
+
+def gradient_descent(data):
+	lot_area = data[0]
+	sale_price = data[1]
+	if(len(lot_area) != len(sale_price)):
+		raise ValueError('Both lot area and sales price need to be of same lengths')
+	a = 1
+	b = 1
+	# Ypred = a + b X,
+	ypred = [a + (lot_area[s] * b) for s in lot_area if type(s) == int]
+	print(ypred)
+		
+
+
+data = extract_data()
+processed_data = process_data(data)
+
+gradient_descent(processed_data)
