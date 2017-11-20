@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 
 matplotlib = "*"
+nltk = "*"
 
 
 [dev-packages]

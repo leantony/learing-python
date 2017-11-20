@@ -28,39 +28,24 @@ def get_counts(bi_grams):
 		    apps[b] = 1
 	return apps
 
-def calculate_probablities(apps, data):
+def train(bi_grams, data):
+	apps = get_counts(bi_grams)
 	size = len(apps)
 	keys = [list(x) for x in apps.keys()]
 	# print(keys[1])
 	items = [i[1] for i in apps.items()]
+	s_items = sum(items)
 	results = {}
-	for x in range(0, size):
-		f1 = data.count(data[x])
-		f2 = data.count(data[x + 1])
-		# print("{0}, {1}".format(f1, f2))
-		ngram_prob = math.log(f1/f2, 10)
-		results[tuple(keys[x])] = ngram_prob
+	# print(apps)
+	for x in range(0, len(items)):
+		count = items[x]
+		prob = count / s_items
+		results[tuple(keys[x])] = prob
 	print(results)
-	# for x in range(0, size):
-	# 	l = keys[x]
-	# 	print(l)
-	# for key, value in apps:
-		# print(app)
-		# print(value)
-		# if(len(key) > 0):
-		# 	l = str(key).split()
-		# 	print(l)
-		# 	f1 = data.count(l[0])
-		# 	f2 = data.count(l[1])
-		# 	ngram_prob = value/f1
-		# 	print(ngram_prob)
-		# else:
-		# 	continue
 
-data = get_file_data('alice.txt')
+data = get_file_data('train.txt')
 bg = get_bi_grams(data)
-c = get_counts(bg)
 # print(c)
 ls = str(data).split(" ")
 # print(ls.count(ls[1]))
-calculate_probablities(c, ls)
+results = train(bg, ls)
