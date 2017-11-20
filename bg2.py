@@ -2,11 +2,8 @@
 import csv
 from collections import defaultdict
 import codecs
-from nltk import bigrams
-from nltk import NaiveBayesClassifier
-from nltk.metrics import BigramAssocMeasures
-from nltk.collocations import BigramCollocationFinder
 
+# extract the data from the document
 def extract_data(csv_file="spam.csv"):
 	columns = defaultdict(list)
 	with codecs.open(csv_file, "r", encoding='utf-8', errors='ignore') as f:
@@ -16,6 +13,7 @@ def extract_data(csv_file="spam.csv"):
 	            columns[k].append(v)
 	return columns
 
+# build the corpus
 def build_corpus(data):
 	spam = []
 	legit = []
@@ -29,9 +27,11 @@ def build_corpus(data):
 			spam.append(data['v2'][x])
 	return legit, spam
 
+# create the bigrams
 def create_bigrams(data):
 	return [b for l in data for b in zip(l.split(" ")[:-1], l.split(" ")[1:])]
 
+# count appearances
 def get_counts(bi_grams):
 	data_size = len(bi_grams)
 	apps = {}
@@ -43,16 +43,37 @@ def get_counts(bi_grams):
 		    apps[b] = 1
 	return apps
 
-def bigrams(words, score_fn=BigramAssocMeasures.chi_sq, n=200):
-    bigram_finder = BigramCollocationFinder.from_words(words)
-    bigrams = bigram_finder.nbest(score_fn, n)
-    return dict([(word, True) for word in bigrams])
+# calculate probabilities
+def get_probabilities(apps, data):
+	size = len(apps)
+	keys = [list(x) for x in apps.keys()]
+	# print(keys[1])
+	items = [i[1] for i in apps.items()]
+	s_items = sum(items)
+	results = {}
+	# print(apps)
+	for x in range(0, len(items)):
+		count = items[x]
+		prob = count / s_items
+		results[tuple(keys[x])] = prob
+	return results
+
 
 extracted = extract_data()
+
 legit, spam = build_corpus(extracted)
+
 legit_corpus = create_bigrams(legit)
+
 spam_corpus = create_bigrams(spam)
-c = get_counts(spam_corpus)
-bg = bigrams(legit)
-print(bg)
-classifier = NaiveBayesClassifier.train(bg)
+
+spam_appearances = get_counts(spam_corpus)
+
+legit_appearances = get_counts(legit_corpus)
+
+spam_probabilities = get_probabilities(spam_appearances, spam_corpus)
+legit_probabilities = get_probabilities(legit_appearances, legit_corpus)
+
+print("==================================")
+# proceed to classify..
+
