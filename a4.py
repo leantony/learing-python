@@ -37,7 +37,8 @@ def scan(url, items = set(), depth=0, depth_max=10):
             continue
           else:
             if w in words_scanned:
-              if re.compile(r'[\'\"<>/{}&@[\]()=~(-)`|{class|type|role|height|width|href|viewbox|data*|id=(.*?)}]').match(w): # skip invalid chars
+              # [\'\"<>/{}&@[\]()=~(-)`|{class|type|role|height|width|href|viewbox|data*|id=(.*?)}]
+              if not w.isalpha(): # skip invalid chars
                 print("skipping {0} since its invalid...".format(w))
                 continue
               else:
@@ -77,7 +78,7 @@ def scan(url, items = set(), depth=0, depth_max=10):
       print(e.reason) # error
 
 # draw a graph
-def draw_graph(sorted_values, top = 10):
+def draw_graph(sorted_values, top = 20):
 	k = [x[0] for x in sorted_values[-top:]]
 	v = [x[1] for x in sorted_values[-top:]]
 	print(k)
