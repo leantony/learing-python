@@ -43,16 +43,26 @@ def get_counts(bi_grams):
 		    apps[b] = 1
 	return apps
 
-def bigrams(words, score_fn=BigramAssocMeasures.chi_sq, n=200):
-    bigram_finder = BigramCollocationFinder.from_words(words)
-    bigrams = bigram_finder.nbest(score_fn, n)
-    return dict([(word, True) for word in bigrams])
+def get_probabilities(apps, data):
+	size = len(apps)
+	keys = [list(x) for x in apps.keys()]
+	# print(keys[1])
+	items = [i[1] for i in apps.items()]
+	s_items = sum(items)
+	results = {}
+	# print(apps)
+	for x in range(0, len(items)):
+		count = items[x]
+		prob = count / s_items
+		results[tuple(keys[x])] = prob
+	print(results)
+
 
 extracted = extract_data()
 legit, spam = build_corpus(extracted)
 legit_corpus = create_bigrams(legit)
 spam_corpus = create_bigrams(spam)
 c = get_counts(spam_corpus)
+cd = get_counts(legit_corpus)
 bg = bigrams(legit)
-print(bg)
-classifier = NaiveBayesClassifier.train(bg)
+print(get_probabilities(c, legit))
