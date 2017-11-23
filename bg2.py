@@ -2,11 +2,8 @@
 import csv
 from collections import defaultdict
 import codecs
-from nltk import bigrams
-from nltk import NaiveBayesClassifier
-from nltk.metrics import BigramAssocMeasures
-from nltk.collocations import BigramCollocationFinder
 
+# extract the data from the document
 def extract_data(csv_file="spam.csv"):
 	columns = defaultdict(list)
 	with codecs.open(csv_file, "r", encoding='utf-8', errors='ignore') as f:
@@ -16,6 +13,7 @@ def extract_data(csv_file="spam.csv"):
 	            columns[k].append(v)
 	return columns
 
+# build the corpus
 def build_corpus(data):
 	spam = []
 	legit = []
@@ -29,9 +27,11 @@ def build_corpus(data):
 			spam.append(data['v2'][x])
 	return legit, spam
 
+# create the bigrams
 def create_bigrams(data):
 	return [b for l in data for b in zip(l.split(" ")[:-1], l.split(" ")[1:])]
 
+# count appearances
 def get_counts(bi_grams):
 	data_size = len(bi_grams)
 	apps = {}
@@ -43,6 +43,7 @@ def get_counts(bi_grams):
 		    apps[b] = 1
 	return apps
 
+# calculate probabilities
 def get_probabilities(apps, data):
 	size = len(apps)
 	keys = [list(x) for x in apps.keys()]
@@ -55,14 +56,24 @@ def get_probabilities(apps, data):
 		count = items[x]
 		prob = count / s_items
 		results[tuple(keys[x])] = prob
-	print(results)
+	return results
 
 
 extracted = extract_data()
+
 legit, spam = build_corpus(extracted)
+
 legit_corpus = create_bigrams(legit)
+
 spam_corpus = create_bigrams(spam)
-c = get_counts(spam_corpus)
-cd = get_counts(legit_corpus)
-bg = bigrams(legit)
-print(get_probabilities(c, legit))
+
+spam_appearances = get_counts(spam_corpus)
+
+legit_appearances = get_counts(legit_corpus)
+
+spam_probabilities = get_probabilities(spam_appearances, spam_corpus)
+legit_probabilities = get_probabilities(legit_appearances, legit_corpus)
+
+print(spam_probabilities)
+print("==================================")
+# proceed to classify..
